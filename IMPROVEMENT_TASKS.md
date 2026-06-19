@@ -2,7 +2,7 @@
 
 ## P0 - Access Reliability
 
-- [ ] Create a shared API client for all external requests.
+- [x] Create a shared API client for all external requests.
   - Add a reusable module such as `js/apiClient.js`.
   - Route TMDb, OMDb, and other blocked external API calls through the existing Cloudflare Worker proxy.
   - Keep direct fetch only for same-origin static files.
@@ -156,4 +156,3 @@
   - Push to GitHub Pages branch.
   - Wait for deployment.
   - Verify key pages without VPN.
-
