@@ -7,7 +7,7 @@
   - Route TMDb, OMDb, and other blocked external API calls through the existing Cloudflare Worker proxy.
   - Keep direct fetch only for same-origin static files.
 
-- [ ] Replace direct `fetch` calls across the site.
+- [x] Replace direct `fetch` calls across the site.
   - Update movie pages.
   - Update series pages.
   - Update search pages.

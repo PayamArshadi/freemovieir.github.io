@@ -32,7 +32,9 @@ class ApiKeySwitcher {
         while (attempts < totalAttemptsLimit) {
             const url = urlTemplate(this.getCurrentKey());
             try {
-                const response = await fetch(url);
+                const response = window.FreeMovieApi
+                    ? await window.FreeMovieApi.request(url)
+                    : await fetch(url);
                 if (!response.ok) {
                     if (response.status === 429) {
                         console.warn('محدودیت نرخ OMDB API - تلاش مجدد...');
@@ -66,7 +68,9 @@ async function loadApiKeys() {
 
     for (const path of possiblePaths) {
         try {
-            const response = await fetch(path);
+            const response = window.FreeMovieApi
+                ? await window.FreeMovieApi.request(path)
+                : await fetch(path);
             if (!response.ok) {
                 console.warn(`خطا در بارگذاری از ${path}: ${response.status}`);
                 continue;

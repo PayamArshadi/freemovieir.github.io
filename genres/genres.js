@@ -1,5 +1,6 @@
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc';
 const apiUrl = `https://zxcode.ir/3/genre/movie/list?api_key=${apiKey}&language=fa-IR`;
+const apiClient = window.FreeMovieApi;
 
 function startLoadingBar() {
     const loadingBar = document.getElementById('loading-bar');
@@ -24,7 +25,7 @@ async function fetchGenres() {
     startLoadingBar();
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await apiClient.request(apiUrl);
         if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
         const data = await response.json();
         const genres = data.genres || [];

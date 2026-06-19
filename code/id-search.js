@@ -1,6 +1,7 @@
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key
 const baseImageUrl = 'https://image.tmdb.org/t/p/w500';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png';
+const apiClient = window.FreeMovieApi;
 
 let apiKeySwitcher;
 
@@ -34,8 +35,8 @@ async function searchById(id) {
         const tvUrl = `https://zxcode.ir/3/tv/${id}?api_key=${apiKey}&language=fa-IR`;
 
         const [movieRes, tvRes] = await Promise.all([
-            fetch(movieUrl).then(res => res.ok ? res.json() : null),
-            fetch(tvUrl).then(res => res.ok ? res.json() : null)
+            apiClient.request(movieUrl).then(res => res.ok ? res.json() : null),
+            apiClient.request(tvUrl).then(res => res.ok ? res.json() : null)
         ]);
 
         if (movieRes) {

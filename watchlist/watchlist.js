@@ -3,6 +3,7 @@ const apiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key
 const language = 'fa-IR'; // Language set to Persian (Iran)
 const baseImageUrl = 'https://image.tmdb.org/t/p/w500'; // TMDb base image URL for posters
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default poster fallback
+const apiClient = window.FreeMovieApi;
 
 let apiKeySwitcher;
 
@@ -82,13 +83,13 @@ async function fetchAndDisplayItem(itemId, type, container) {
             : `https://zxcode.ir/3/tv/${itemId}/external_ids?api_key=${apiKey}`;
 
         // Fetch TMDb data
-        const response = await fetch(apiUrl);
+        const response = await apiClient.request(apiUrl);
         if (!response.ok) throw new Error(`خطای سرور (داده‌های ${type}): ${response.status}`);
         const data = await response.json();
 
         // Fetch IMDb ID and poster from OMDB
         let poster = defaultPoster;
-        const externalIdsRes = await fetch(externalIdsUrl);
+        const externalIdsRes = await apiClient.request(externalIdsUrl);
         if (!externalIdsRes.ok) throw new Error(`خطای سرور (شناسه‌های خارجی): ${externalIdsRes.status}`);
         const externalIdsData = await externalIdsRes.json();
         const imdbId = externalIdsData.imdb_id || '';

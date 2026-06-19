@@ -1,5 +1,6 @@
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie-300.png';
+const apiClient = window.FreeMovieApi;
 let apiKeySwitcher;
 
 let moviePage = 1;
@@ -51,7 +52,7 @@ async function fetchMovies(page, isInitial = false) {
     startLoadingBar();
 
     try {
-        const response = await fetch(`${apiUrl}${page}`);
+        const response = await apiClient.request(`${apiUrl}${page}`);
         if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
         const data = await response.json();
         const movies = data.results || [];
@@ -62,7 +63,7 @@ async function fetchMovies(page, isInitial = false) {
             let poster = defaultPoster.replace(/300(?=\.jpg$)/i, '');
             const detailsUrl = `https://zxcode.ir/3/movie/${movie.id}/external_ids?api_key=${apiKey}`;
             try {
-                const detailsRes = await fetch(detailsUrl);
+                const detailsRes = await apiClient.request(detailsUrl);
                 if (!detailsRes.ok) throw new Error(`خطای جزئیات: ${detailsRes.status}`);
                 const detailsData = await detailsRes.json();
                 const imdbId = detailsData.imdb_id || '';

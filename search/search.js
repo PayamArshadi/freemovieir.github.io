@@ -6,6 +6,7 @@ const language = 'fa-IR';
 const baseImageUrl = 'https://image.tmdb.org/t/p/w500'; // Base URL for TMDb images ( fallback if OMDB fails )
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png';
 const minQueryLength = 3;
+const apiClient = window.FreeMovieApi;
 
 // --- Globals ---
 let apiKeySwitcher; // Will hold the instance for OMDB key switching
@@ -172,7 +173,7 @@ async function fetchAndSetPoster(item, itemType) {
     let imdbId = null;
 
     try {
-        const response = await fetch(externalIdsUrl);
+        const response = await apiClient.request(externalIdsUrl);
         if (response.ok) {
             const idsData = await response.json();
             imdbId = idsData.imdb_id;
@@ -217,7 +218,7 @@ async function searchMedia(query, searchType) {
     const searchMultiUrl = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=${language}&query=${encodedQuery}`;
 
     try {
-        const response = await fetch(searchMultiUrl);
+        const response = await apiClient.request(searchMultiUrl);
         if (!response.ok) {
             throw new Error(`خطای API: ${response.status}`);
         }

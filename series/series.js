@@ -4,6 +4,7 @@ const baseImageUrl = 'https://image.tmdb.org/t/p/';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie-300.png';
 const defaultBackdrop = 'https://freemovieir.github.io/images/default-freemovie-300.png';
 const seriesId = new URLSearchParams(window.location.search).get('id');
+const apiClient = window.FreeMovieApi;
 
 let apiKeySwitcher;
 
@@ -225,7 +226,7 @@ async function getSeriesDetails() {
     try {
         // 1. دریافت اطلاعات اصلی سریال از TMDB (شامل ویدئوها و IDهای خارجی)
         const seriesDetailsUrl = `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}&language=${language}&append_to_response=external_ids,videos`;
-        const res = await fetch(seriesDetailsUrl);
+        const res = await apiClient.request(seriesDetailsUrl);
 
         if (!res.ok) {
             // مدیریت خطاهای HTTP مانند 404 (Not Found) یا 401 (Unauthorized)
@@ -294,7 +295,7 @@ async function fetchRelatedSeries(currentSeriesId, tmdbApiKey, lang, switcher) {
     const relatedUrl = `https://api.themoviedb.org/3/tv/${currentSeriesId}/similar?api_key=${tmdbApiKey}&language=${lang}&page=1`; // دریافت صفحه اول
 
     try {
-        const res = await fetch(relatedUrl);
+        const res = await apiClient.request(relatedUrl);
         if (!res.ok) {
             throw new Error(`خطای دریافت سریال‌های مشابه: ${res.status}`);
         }
@@ -311,7 +312,7 @@ async function fetchRelatedSeries(currentSeriesId, tmdbApiKey, lang, switcher) {
 
         // دریافت موازی IMDb ID برای همه سریال‌های مرتبط
         const externalIdPromises = relatedSeries.map(serie =>
-            fetch(`https://api.themoviedb.org/3/tv/${serie.id}/external_ids?api_key=${tmdbApiKey}`)
+            apiClient.request(`https://api.themoviedb.org/3/tv/${serie.id}/external_ids?api_key=${tmdbApiKey}`)
                 .then(res => res.ok ? res.json() : Promise.reject(`Failed to fetch external ID for ${serie.id}`))
                 .then(ids => ({ seriesId: serie.id, imdbId: ids.imdb_id })) // برگرداندن ID سریال اصلی و IMDb ID
                 .catch(err => {

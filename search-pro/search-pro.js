@@ -3,6 +3,7 @@ const apiKey = '1dc4cbf81f0accf4fa108820d551dafc';
 const language = 'fa-IR';
 const baseImageUrl = 'https://image.tmdb.org/t/p/w500';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png';
+const apiClient = window.FreeMovieApi;
 
 let apiKeySwitcher;
 let currentPage = 1;
@@ -83,7 +84,7 @@ async function advancedSearch(page = 1, append = false) {
     if (withCountries.length > 0) movieUrl += `&with_origin_country=${withCountries.join('|')}`;
     if (minVote) movieUrl += `&vote_average.gte=${minVote}`;
 
-    const res = await fetch(movieUrl);
+    const res = await apiClient.request(movieUrl);
     if (!res.ok) throw new Error(`خطای سرور: ${res.status}`);
     const movieRes = await res.json();
 
