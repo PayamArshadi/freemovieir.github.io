@@ -6,6 +6,15 @@ const baseImageUrl = 'https://image.tmdb.org/t/p/'; // Base URL for TMDB images
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default poster fallback
 const defaultBackdrop = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default backdrop fallback
 const movieId = new URLSearchParams(window.location.search).get('id');
+const proxyBaseUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/';
+
+function proxify(url) {
+    return `${proxyBaseUrl}?url=${encodeURIComponent(url)}`;
+}
+
+function fetchViaProxy(url, options) {
+    return fetch(proxify(url), options);
+}
 
 let apiKeySwitcher; // Global variable for OMDb API key management
 
@@ -377,9 +386,9 @@ async function getMovieDetails() {
         console.log("Fetching TMDB data concurrently...");
         console.time("TMDB Concurrent Fetch");
         const [detailsRes, detailsEnglishRes, externalIdsRes] = await Promise.all([
-            fetch(movieDetailsUrl),
-            fetch(movieDetailsEnglishUrl),
-            fetch(externalIdsUrl)
+            fetchViaProxy(movieDetailsUrl),
+            fetchViaProxy(movieDetailsEnglishUrl),
+            fetchViaProxy(externalIdsUrl)
         ]);
         console.timeEnd("TMDB Concurrent Fetch");
 
