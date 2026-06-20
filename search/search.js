@@ -3,7 +3,7 @@
 // --- Configuration ---
 const tmdbApiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key
 const language = 'fa-IR';
-const baseImageUrl = 'https://image.tmdb.org/t/p/w500'; // Base URL for TMDb images ( fallback if OMDB fails )
+const baseImageUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Fw500'; // Base URL for TMDb images ( fallback if OMDB fails )
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png';
 const minQueryLength = 3;
 const apiClient = window.FreeMovieApi;

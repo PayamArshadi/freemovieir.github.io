@@ -3,7 +3,7 @@ const defaultApiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // کلید پیش‌�
 const userTmdbToken = localStorage.getItem('userTmdbToken'); // توکن کاربر
 const apiKey = userTmdbToken || defaultApiKey; // اولویت با توکن کاربر
 const language = 'fa';
-const baseImageUrl = 'https://image.tmdb.org/t/p/w500';
+const baseImageUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Fw500';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie-300.png';
 const apiClient = window.FreeMovieApi;
 
