@@ -221,7 +221,7 @@ function updateDomWithMovieDetails(movieData, movieDataEnglish, externalIdsData,
  * @param {string} year - Release year of the movie.
  * @param {string} title - Title of the movie.
  */
-function updateDownloadLinks(imdbId, year, title) {
+async function updateDownloadLinks(imdbId, year, title) {
     const downloadLinksContainer = document.getElementById('download-links');
     if (!downloadLinksContainer) return;
 
@@ -232,45 +232,107 @@ function updateDownloadLinks(imdbId, year, title) {
 
     const imdbShort = imdbId.replace('tt', '');
     const encodedTitle = encodeURIComponent(title);
-    const subtitleLink = `http://subtitlestar.com/go-to.php?imdb-id=${imdbId}&movie-name=${encodedTitle}`; // Ensure this URL is correct
+    const subtitleLink = `http://subtitlestar.com/go-to.php?imdb-id=${imdbId}&movie-name=${encodedTitle}`;
 
-    // Define download server URLs (replace with actual URLs if different)
-    const serverBaseUrls = [
-        'https://berlin.saymyname.website',
-        'https://tokyo.saymyname.website',
-        'https://nairobi.saymyname.website'
+    const servers = [
+        { name: 'اصلی', baseUrl: 'https://berlin.saymyname.website' },
+        { name: 'کمکی ۱', baseUrl: 'https://tokyo.saymyname.website' },
+        { name: 'کمکی ۲', baseUrl: 'https://nairobi.saymyname.website' }
     ];
-    const downloadPath = `/Movies/${year}/${imdbShort}`; // Ensure this path structure is correct
+    const downloadPath = `/Movies/${year}/${imdbShort}`;
 
-    let downloadLinksHtml = serverBaseUrls.map((baseUrl, index) => `
-        <a href="${baseUrl}${downloadPath}"
-           class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition duration-200 text-sm font-medium flex items-center gap-1"
-           rel="nofollow noopener" target="_blank">
-            <span>دانلود (${index === 0 ? 'اصلی' : `کمکی ${index}`})</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-        </a>
-    `).join('');
+    // ساخت URL گزارش لینک خراب به گیت‌هاب
+    function buildBrokenReportUrl(serverName, url) {
+        const issueTitle = `گزارش لینک خراب: ${title} (${year}) - سرور ${serverName}`;
+        const issueBody = [
+            `عنوان: ${title}`,
+            `سال: ${year}`,
+            `IMDb: ${imdbId}`,
+            `TMDb: ${movieId}`,
+            `سرور: ${serverName}`,
+            `لینک خراب: ${url}`,
+            `صفحه: ${window.location.href}`
+        ].join('\n');
+        return `https://github.com/FreeMovieIR/freemovieir.github.io/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+    }
+
+    // نمایش loading اولیه
+    downloadLinksContainer.innerHTML = `
+        <div class="flex flex-wrap justify-center gap-3">
+            <div class="w-full text-center text-gray-400 text-sm py-2">
+                <svg class="animate-spin inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 5.373 22 12h-4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                در حال بررسی لینک‌های دانلود...
+            </div>
+        </div>
+    `;
+
+    // بررسی سلامت هر سرور به صورت موازی
+    const serverStatuses = await Promise.all(
+        servers.map(async (server) => {
+            const url = `${server.baseUrl}${downloadPath}`;
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 7000);
+                await fetch(url, { method: 'HEAD', signal: controller.signal, mode: 'no-cors' });
+                clearTimeout(timer);
+                return { ...server, url, alive: true };
+            } catch (e) {
+                return { ...server, url, alive: false };
+            }
+        })
+    );
+
+    // رندر لینک‌ها با وضعیت هر سرور
+    let downloadLinksHtml = serverStatuses.map(server => {
+        const reportUrl = buildBrokenReportUrl(server.name, server.url);
+        const statusBadge = server.alive
+            ? `<span class="inline-block bg-green-700 text-green-100 text-xs rounded px-1.5 py-0.5 mr-1">✓ فعال</span>`
+            : `<span class="inline-block bg-red-800 text-red-200 text-xs rounded px-1.5 py-0.5 mr-1">✗ ناپایدار</span>`;
+
+        return `
+            <div class="flex items-center gap-1">
+                <a href="${server.url}"
+                   class="bg-blue-600 text-white px-3 py-1.5 rounded-r hover:bg-blue-700 transition duration-200 text-sm font-medium flex items-center gap-1"
+                   rel="nofollow noopener" target="_blank">
+                    ${statusBadge}
+                    <span>دانلود (${server.name})</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                </a>
+                <a href="${reportUrl}"
+                   class="bg-red-800 hover:bg-red-700 text-red-100 text-xs px-2 py-1.5 rounded-l transition duration-200 flex items-center"
+                   rel="nofollow noopener" target="_blank" title="گزارش لینک خراب">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </a>
+            </div>
+        `;
+    }).join('');
 
     downloadLinksHtml += `
         <a href="${subtitleLink}"
            class="bg-purple-600 text-white px-3 py-1.5 rounded hover:bg-purple-700 transition duration-200 text-sm font-medium flex items-center gap-1"
            rel="nofollow noopener" target="_blank">
             <span>دریافت زیرنویس</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            </svg>
         </a>
-    `;
-
-    // Add placeholder for the watchlist button (will be initialized separately)
-    downloadLinksHtml += `
         <button id="add-to-watchlist" class="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 transition duration-200 text-sm font-medium flex items-center gap-1 opacity-50" disabled>
-             <span>واچ‌لیست</span>
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-         </button>
+            <span>واچ‌لیست</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+        </button>
     `;
 
-
-    downloadLinksContainer.innerHTML = `<div class="flex flex-wrap justify-center gap-3">${downloadLinksHtml}</div>`; // Wrap in a div for better layout
-    console.log("Download links generated.");
+    downloadLinksContainer.innerHTML = `<div class="flex flex-wrap justify-center gap-3">${downloadLinksHtml}</div>`;
+    console.log("Download links generated with health check.");
 }
 
 /**
@@ -408,7 +470,7 @@ async function getMovieDetails() {
         console.log("All data fetched. Updating DOM...");
         console.time("DOM Update");
         updateDomWithMovieDetails(movieData, movieDataEnglish, externalIdsData, movieData.videos, finalPosterUrl);
-        updateDownloadLinks(imdbId, year, title);
+        await updateDownloadLinks(imdbId, year, title);
         setupWatchlistButton(movieId, title);
         console.timeEnd("DOM Update");
 
