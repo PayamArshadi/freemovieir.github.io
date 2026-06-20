@@ -252,7 +252,7 @@ const [movieRes, tvRes] = await Promise.all([
 homeStatusBadge = await buildHomepageStatusBadge(item, type);
 return `
                     <div class="group relative">
-                        <img src="${poster}" alt="${homeStatusBadge}${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg">
+                        ${homeStatusBadge}<img src="${poster}" alt="${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg">
                         <div class="absolute inset-0 bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
                             <h3 class="text-lg font-bold text-white">${item.title || item.name || 'نامشخص'}</h3>
                             <p class="text-sm text-gray-200">${item.overview ? item.overview.slice(0, 100) + '...' : 'توضیحات موجود نیست'}</p>
