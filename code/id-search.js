@@ -1,5 +1,5 @@
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key
-const baseImageUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Fw500';
+const baseImageUrl = 'https://image.tmdb.org/t/p/w500';
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png';
 const apiClient = window.FreeMovieApi;
 

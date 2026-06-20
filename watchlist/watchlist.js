@@ -1,7 +1,7 @@
 // watchlist.js
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key
 const language = 'fa-IR'; // Language set to Persian (Iran)
-const baseImageUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Fw500'; // TMDb base image URL for posters
+const baseImageUrl = 'https://image.tmdb.org/t/p/w500'; // TMDb base image URL for posters
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default poster fallback
 const apiClient = window.FreeMovieApi;
 

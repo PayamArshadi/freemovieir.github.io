@@ -2,7 +2,7 @@
 // --- Configuration Constants ---
 const apiKey = '1dc4cbf81f0accf4fa108820d551dafc'; // TMDb API key (Replace with your key)
 const language = 'fa-IR';
-const baseImageUrl = 'https://odd-disk-9903.armin-apple816467.workers.dev/?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2F'; // Base URL for TMDB images
+const baseImageUrl = 'https://image.tmdb.org/t/p/'; // Base URL for TMDB images
 const defaultPoster = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default poster fallback
 const defaultBackdrop = 'https://freemovieir.github.io/images/default-freemovie.png'; // Default backdrop fallback
 const movieId = new URLSearchParams(window.location.search).get('id');
