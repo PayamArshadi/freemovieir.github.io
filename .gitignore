@@ -3,3 +3,7 @@
 movies-list.txt
 node_modules
 /.idea
+.DS_Store
+*.bak-*
+*.bak-release-gate-*
+patch-release-gate.cjs
