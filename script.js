@@ -106,15 +106,16 @@ function homepageBadgeGetAllReleaseDates(releaseDatesData) {
 }
 
 function homepageBadgeHtml(label, variant) {
-  const styles = {
-    cinema: 'background:#dc2626;color:#fff;border:1px solid rgba(255,255,255,.25);',
-    airing: 'background:#2563eb;color:#fff;border:1px solid rgba(255,255,255,.25);',
-    soon: 'background:#9333ea;color:#fff;border:1px solid rgba(255,255,255,.25);'
+  const colors = {
+    cinema: 'background:#dc2626;color:#fff;border:1px solid rgba(255,255,255,.35);',
+    airing: 'background:#2563eb;color:#fff;border:1px solid rgba(255,255,255,.35);',
+    soon: 'background:#9333ea;color:#fff;border:1px solid rgba(255,255,255,.35);'
   };
 
   return `
     <span
-      style="display:inline-flex;align-items:center;gap:4px;margin-left:8px;margin-bottom:6px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;line-height:1;${styles[variant] || styles.soon}"
+      class="homepage-status-badge"
+      style="position:absolute;top:8px;right:8px;z-index:20;display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;line-height:1.2;box-shadow:0 4px 12px rgba(0,0,0,.45);${colors[variant] || colors.soon}"
       title="${label}"
     >${label}</span>
   `;
@@ -252,7 +253,7 @@ const [movieRes, tvRes] = await Promise.all([
 homeStatusBadge = await buildHomepageStatusBadge(item, type);
 return `
                     <div class="group relative">
-                        ${homeStatusBadge}<img src="${poster}" alt="${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg">
+                        ${homeStatusBadge}<div class="homepage-status-poster-wrap relative w-full" style="position:relative;display:block;"><div class="homepage-status-poster-wrap relative w-full" style="position:relative;display:block;">${homeStatusBadge}<img src="${poster}" alt="${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg"></div></div>
                         <div class="absolute inset-0 bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
                             <h3 class="text-lg font-bold text-white">${item.title || item.name || 'نامشخص'}</h3>
                             <p class="text-sm text-gray-200">${item.overview ? item.overview.slice(0, 100) + '...' : 'توضیحات موجود نیست'}</p>
