@@ -78,6 +78,132 @@ function finishLoadingBar() {
     }
 }
 
+
+// --- Homepage Status Badges ---
+const HOMEPAGE_STATUS_BADGE_CACHE = new Map();
+
+function homepageBadgeToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function homepageBadgeDate(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function homepageBadgeGetAllReleaseDates(releaseDatesData) {
+  const results = Array.isArray(releaseDatesData?.results) ? releaseDatesData.results : [];
+  return results.flatMap(region => {
+    const releaseDates = Array.isArray(region?.release_dates) ? region.release_dates : [];
+    return releaseDates.map(item => ({
+      ...item,
+      region: region?.iso_3166_1 || ''
+    }));
+  });
+}
+
+function homepageBadgeHtml(label, variant) {
+  const styles = {
+    cinema: 'background:#dc2626;color:#fff;border:1px solid rgba(255,255,255,.25);',
+    airing: 'background:#2563eb;color:#fff;border:1px solid rgba(255,255,255,.25);',
+    soon: 'background:#9333ea;color:#fff;border:1px solid rgba(255,255,255,.25);'
+  };
+
+  return `
+    <span
+      style="display:inline-flex;align-items:center;gap:4px;margin-left:8px;margin-bottom:6px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;line-height:1;${styles[variant] || styles.soon}"
+      title="${label}"
+    >${label}</span>
+  `;
+}
+
+function homepageMovieBadgeFromReleaseDates(releaseDatesData) {
+  const today = homepageBadgeToday();
+  const releases = homepageBadgeGetAllReleaseDates(releaseDatesData);
+
+  const cinemaTypes = [2, 3];
+  const publicTypes = [4, 5, 6];
+
+  const past = releases.filter(item => {
+    const d = homepageBadgeDate(item.release_date);
+    return d && d <= today;
+  });
+
+  const future = releases.filter(item => {
+    const d = homepageBadgeDate(item.release_date);
+    return d && d > today;
+  });
+
+  const hasPastCinema = past.some(item => cinemaTypes.includes(item.type));
+  const hasPastPublic = past.some(item => publicTypes.includes(item.type));
+  const hasFutureCinema = future.some(item => cinemaTypes.includes(item.type));
+
+  if (hasPastCinema && !hasPastPublic) {
+    return homepageBadgeHtml('اکران سینما', 'cinema');
+  }
+
+  if (!hasPastPublic && hasFutureCinema) {
+    return homepageBadgeHtml('به‌زودی سینما', 'soon');
+  }
+
+  return '';
+}
+
+function homepageTvBadgeFromDetails(details, item) {
+  const today = homepageBadgeToday();
+  const firstAirDate = homepageBadgeDate(details?.first_air_date || item?.first_air_date);
+  const status = details?.status || '';
+
+  if (firstAirDate && firstAirDate > today) {
+    return homepageBadgeHtml('به‌زودی', 'soon');
+  }
+
+  if (status === 'Returning Series' || status === 'In Production') {
+    return homepageBadgeHtml('در حال پخش', 'airing');
+  }
+
+  return '';
+}
+
+async function buildHomepageStatusBadge(item, type) {
+  if (!item?.id) return '';
+
+  const cacheKey = `${type}:${item.id}`;
+  if (HOMEPAGE_STATUS_BADGE_CACHE.has(cacheKey)) {
+    return HOMEPAGE_STATUS_BADGE_CACHE.get(cacheKey);
+  }
+
+  let badge = '';
+
+  try {
+    if (type === 'movie') {
+      const url = `https://api.themoviedb.org/3/movie/${item.id}/release_dates?api_key=${apiKey}`;
+      const res = await apiClient.request(url);
+      if (res.ok) {
+        const data = await res.json();
+        badge = homepageMovieBadgeFromReleaseDates(data);
+      }
+    }
+
+    if (type === 'tv') {
+      const url = `https://api.themoviedb.org/3/tv/${item.id}?api_key=${apiKey}&language=fa`;
+      const res = await apiClient.request(url);
+      if (res.ok) {
+        const data = await res.json();
+        badge = homepageTvBadgeFromDetails(data, item);
+      }
+    }
+  } catch (error) {
+    console.warn(`خطا در ساخت badge برای ${type} ${item.id}:`, error.message);
+  }
+
+  HOMEPAGE_STATUS_BADGE_CACHE.set(cacheKey, badge);
+  return badge;
+}
+
 async function fetchAndDisplayContent() {
     const movieContainer = document.getElementById('new-movies');
     const tvContainer = document.getElementById('trending-tv');
@@ -106,8 +232,7 @@ const [movieRes, tvRes] = await Promise.all([
                 if (seenIds.has(item.id)) return '';
                 seenIds.add(item.id);
 
-                let poster = defaultPoster;
-                const detailsUrl = `https://api.themoviedb.org/3/${type}/${item.id}/external_ids?api_key=${apiKey}`;
+                let poster = defaultPoster; let homeStatusBadge = ""; const detailsUrl = `https://api.themoviedb.org/3/${type}/${item.id}/external_ids?api_key=${apiKey}`;
 
                 try {
                     const detailsRes = await apiClient.request(detailsUrl);
@@ -123,13 +248,11 @@ const [movieRes, tvRes] = await Promise.all([
                             });
                         }
                     }
-                } catch (error) {
-                    console.warn(`خطا در دریافت پوستر ${type} ${item.id}:`, error.message);
-                }
-
-                return `
+                } catch (error) { console.warn(`خطا در دریافت پوستر ${type} ${item.id}:`, error.message); }
+homeStatusBadge = await buildHomepageStatusBadge(item, type);
+return `
                     <div class="group relative">
-                        <img src="${poster}" alt="${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg">
+                        <img src="${poster}" alt="${homeStatusBadge}${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg">
                         <div class="absolute inset-0 bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
                             <h3 class="text-lg font-bold text-white">${item.title || item.name || 'نامشخص'}</h3>
                             <p class="text-sm text-gray-200">${item.overview ? item.overview.slice(0, 100) + '...' : 'توضیحات موجود نیست'}</p>
