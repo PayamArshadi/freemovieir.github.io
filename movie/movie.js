@@ -221,6 +221,150 @@ function updateDomWithMovieDetails(movieData, movieDataEnglish, externalIdsData,
  * @param {string} year - Release year of the movie.
  * @param {string} title - Title of the movie.
  */
+
+
+// --- Release Availability Gate ---
+const RELEASE_GATE_TYPES = Object.freeze({
+  THEATRICAL_LIMITED: 2,
+  THEATRICAL: 3,
+  DIGITAL: 4,
+  PHYSICAL: 5,
+  TV: 6
+});
+
+function releaseGateToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function releaseGateDate(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function releaseGateFormatDate(value) {
+  return value ? String(value).slice(0, 10) : '';
+}
+
+function getAllMovieReleaseDates(releaseDatesData) {
+  const results = Array.isArray(releaseDatesData?.results) ? releaseDatesData.results : [];
+  return results.flatMap(region => {
+    const regionCode = region?.iso_3166_1 || '';
+    const releaseDates = Array.isArray(region?.release_dates) ? region.release_dates : [];
+    return releaseDates.map(item => ({
+      ...item,
+      region: regionCode
+    }));
+  });
+}
+
+function getMovieAvailabilityFromReleaseDates(movieData, releaseDatesData) {
+  const today = releaseGateToday();
+  const releases = getAllMovieReleaseDates(releaseDatesData);
+
+  const past = releases.filter(item => {
+    const d = releaseGateDate(item.release_date);
+    return d && d <= today;
+  });
+
+  const future = releases.filter(item => {
+    const d = releaseGateDate(item.release_date);
+    return d && d > today;
+  });
+
+  const homeTypes = [
+    RELEASE_GATE_TYPES.DIGITAL,
+    RELEASE_GATE_TYPES.PHYSICAL,
+    RELEASE_GATE_TYPES.TV
+  ];
+
+  const cinemaTypes = [
+    RELEASE_GATE_TYPES.THEATRICAL_LIMITED,
+    RELEASE_GATE_TYPES.THEATRICAL
+  ];
+
+  const pastHome = past
+    .filter(item => homeTypes.includes(item.type))
+    .sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
+
+  const pastCinema = past
+    .filter(item => cinemaTypes.includes(item.type))
+    .sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
+
+  const nextHome = future
+    .filter(item => homeTypes.includes(item.type))
+    .sort((a, b) => new Date(a.release_date) - new Date(b.release_date))[0];
+
+  const nextCinema = future
+    .filter(item => cinemaTypes.includes(item.type))
+    .sort((a, b) => new Date(a.release_date) - new Date(b.release_date))[0];
+
+  const mainReleaseDate = releaseGateDate(movieData?.release_date);
+
+  if (pastHome.length > 0) {
+    return {
+      status: 'public_released',
+      canShowExternalLinks: true,
+      label: 'نسخه عمومی منتشر شده',
+      message: 'برای این فیلم انتشار عمومی/دیجیتال ثبت شده است.',
+      date: releaseGateFormatDate(pastHome[0].release_date)
+    };
+  }
+
+  if (pastCinema.length > 0) {
+    return {
+      status: 'cinema_only',
+      canShowExternalLinks: false,
+      label: 'فقط اکران سینمایی',
+      message: nextHome
+        ? `این فیلم فعلاً فقط اکران سینمایی دارد. انتشار عمومی ثبت‌شده: ${releaseGateFormatDate(nextHome.release_date)}`
+        : 'این فیلم فعلاً فقط اکران سینمایی دارد و انتشار عمومی/دیجیتال برای آن ثبت نشده است.',
+      date: releaseGateFormatDate(pastCinema[0].release_date)
+    };
+  }
+
+  if ((mainReleaseDate && mainReleaseDate > today) || nextCinema) {
+    return {
+      status: 'upcoming',
+      canShowExternalLinks: false,
+      label: 'هنوز منتشر نشده',
+      message: mainReleaseDate
+        ? `این فیلم هنوز منتشر نشده است. تاریخ ثبت‌شده: ${releaseGateFormatDate(movieData.release_date)}`
+        : `این فیلم هنوز منتشر نشده است. اکران ثبت‌شده: ${releaseGateFormatDate(nextCinema.release_date)}`,
+      date: movieData?.release_date || releaseGateFormatDate(nextCinema?.release_date)
+    };
+  }
+
+  return {
+    status: 'unknown',
+    canShowExternalLinks: false,
+    label: 'وضعیت انتشار نامشخص',
+    message: 'انتشار عمومی این فیلم در TMDb تأیید نشده است؛ برای جلوگیری از لینک خراب، لینک نمایش داده نمی‌شود.',
+    date: ''
+  };
+}
+
+function renderReleaseGateNotice(availability) {
+  const container = document.getElementById('download-links');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="bg-yellow-900/40 border border-yellow-700 text-yellow-100 rounded-xl p-4 text-center space-y-3">
+      <div class="font-bold">${availability.label}</div>
+      <div class="text-sm leading-7">${availability.message}</div>
+      <div class="text-xs opacity-80">
+        وضعیت: ${availability.status}${availability.date ? ' | تاریخ: ' + availability.date : ''}
+      </div>
+      <button id="add-to-watchlist" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"></svg>
+        <span>افزودن به واچ‌لیست</span>
+      </button>
+    </div>
+  `;
+}
+
 async function updateDownloadLinks(imdbId, year, title) {
     const downloadLinksContainer = document.getElementById('download-links');
     if (!downloadLinksContainer) return;
@@ -435,15 +579,11 @@ async function getMovieDetails() {
         // Define TMDB API URLs for Persian and English
         const movieDetailsUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=${language}&append_to_response=credits,videos`;
         const movieDetailsEnglishUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=en-US`;
-        const externalIdsUrl = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${apiKey}`;
+        const externalIdsUrl = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${apiKey}`; const releaseDatesUrl = `https://api.themoviedb.org/3/movie/${movieId}/release_dates?api_key=${apiKey}`;
 
         console.log("Fetching TMDB data concurrently...");
         console.time("TMDB Concurrent Fetch");
-        const [detailsRes, detailsEnglishRes, externalIdsRes] = await Promise.all([
-            apiClient.request(movieDetailsUrl),
-            apiClient.request(movieDetailsEnglishUrl),
-            apiClient.request(externalIdsUrl)
-        ]);
+        const [detailsRes, detailsEnglishRes, externalIdsRes, releaseDatesRes] = await Promise.all([ apiClient.request(movieDetailsUrl), apiClient.request(movieDetailsEnglishUrl), apiClient.request(externalIdsUrl), apiClient.request(releaseDatesUrl) ]);
         console.timeEnd("TMDB Concurrent Fetch");
 
         if (!detailsRes.ok) throw new Error(`خطای TMDB (جزئیات/عوامل/ویدیو): ${detailsRes.status} ${detailsRes.statusText}`);
@@ -451,11 +591,7 @@ async function getMovieDetails() {
         if (!externalIdsRes.ok) throw new Error(`خطای TMDB (شناسه‌های خارجی): ${externalIdsRes.status} ${externalIdsRes.statusText}`);
 
         console.time("Parse TMDB JSON");
-        const [movieData, movieDataEnglish, externalIdsData] = await Promise.all([
-            detailsRes.json(),
-            detailsEnglishRes.json(),
-            externalIdsRes.json()
-        ]);
+        const [movieData, movieDataEnglish, externalIdsData, releaseDatesData] = await Promise.all([ detailsRes.json(), detailsEnglishRes.json(), externalIdsRes.json(), releaseDatesRes && releaseDatesRes.ok ? releaseDatesRes.json() : Promise.resolve({ results: [] }) ]);
         console.timeEnd("Parse TMDB JSON");
 
         const imdbId = externalIdsData?.imdb_id || '';
@@ -470,7 +606,12 @@ async function getMovieDetails() {
         console.log("All data fetched. Updating DOM...");
         console.time("DOM Update");
         updateDomWithMovieDetails(movieData, movieDataEnglish, externalIdsData, movieData.videos, finalPosterUrl);
-        await updateDownloadLinks(imdbId, year, title);
+        const availability = getMovieAvailabilityFromReleaseDates(movieData, releaseDatesData);
+if (!availability.canShowExternalLinks) {
+  renderReleaseGateNotice(availability);
+} else {
+  await updateDownloadLinks(imdbId, year, title);
+}
         setupWatchlistButton(movieId, title);
         console.timeEnd("DOM Update");
 
