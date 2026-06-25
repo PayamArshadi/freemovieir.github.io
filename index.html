@@ -1,8 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fa" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
     <!-- تغییرات سئو -->
     <title>فیری مووی - دانلود و تماشای جدیدترین فیلم‌ها و سریال‌ها</title>
     <meta name="description" content="فیری مووی - اطلاعات جدیدترین فیلم‌ها و سریال‌های پرطرفدار را ببینید و از لینک‌های دانلود الماس مووی استفاده کنید;">
@@ -20,188 +21,172 @@
     <meta name="twitter:description" content="اطلاعات فیلم‌ها و سریال‌ها با لینک دانلود از الماس مووی;">
     <meta name="twitter:image" content="https://freemovieir.github.io/images/tweet2.png">
     <!-- پایان تغییرات سئو -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="icon" href="/fav/favicon.ico" type="favicon/ico">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/fav/favicon.ico" type="image/x-icon">
     <script src="/analytics.js" defer></script>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="7978c39a-bec9-49d3-976a-8362dc9dfea2"></script>
-    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js" defer></script>
-    <style>
-        body { font-family: 'Vazir', sans-serif; direction: rtl; }
-        * { box-sizing: border-box; padding: 0; margin: 0; text-decoration: none; }
-        .skeleton { background: #333; animation: pulse 1.5s infinite; height: 16rem; border-radius: 0.5rem; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        .nav-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
-        #disclaimer-notice { z-index: 10; direction: rtl; }
-
-        /* استایل نوار پیشرفت */
-        #loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background-color: #FFC107;
-            width: 0;
-            z-index: 9999;
-            transition: width 0.3s ease;
-        }
-
-        /* استایل‌های لودینگ قدیمی (در صورت نیاز به حفظ یا حذف) */
-        .popcorn { animation: bounce 1s infinite ease-in-out; }
-        .popcorn-piece { transform-origin: center; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pop { 0% { transform: scale(0.8) translateY(0); opacity: 0.8; } 50% { transform: scale(1.1) translateY(-15px); opacity: 1; } 100% { transform: scale(0.8) translateY(0); opacity: 0.8; } }
-    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+<body class="dark min-h-screen flex flex-col">
     <!-- نوار پیشرفت -->
     <div id="loading-bar"></div>
 
-    <!-- هدر -->
-    <header class="bg-gray-800 p-4 shadow-md">
-        <div class="container mx-auto flex flex-row justify-between items-center">
+    <!-- هدر چسبان -->
+    <header class="site-header">
+        <div class="container mx-auto flex items-center justify-between gap-4 px-4 h-16">
+            <!-- لوگو + نام -->
+            <a href="https://freemovieir.github.io/" class="flex items-center gap-2 shrink-0">
+                <img src="https://freemovieir.github.io/logo.png" alt="لوگوی فیری مووی" class="h-9 w-auto">
+                <span class="font-extrabold text-lg hidden sm:inline">فیری مووی</span>
+            </a>
+
             <!-- ناوبری -->
-            <nav class="flex items-center space-x-4">
-                <a href="https://freemovieir.github.io/" class="hover:text-gray-300 p-4" aria-label="خانه"><i class="fas fa-home"></i></a>
-                <a href="/watchlist" class="hover:text-gray-300" aria-label="واچ‌لیست"><i class="fas fa-bookmark"></i></a>
-                <a href="/search" class="hover:text-gray-300" aria-label="جستجو"><i class="fas fa-search"></i></a>
-				<a href="/settings/index.html" class="hover:text-gray-300" aria-label="تنظیمات"><i class="fas fa-cog"></i></a>
+            <nav class="flex items-center gap-1 sm:gap-2">
+                <a href="https://freemovieir.github.io/" class="nav-link" aria-label="خانه" title="خانه"><i class="fas fa-home"></i></a>
+                <a href="/genres" class="nav-link" aria-label="ژانرها" title="ژانرها"><i class="fas fa-layer-group"></i></a>
+                <a href="/series" class="nav-link" aria-label="سریال‌ها" title="سریال‌ها"><i class="fas fa-tv"></i></a>
+                <a href="/watchlist" class="nav-link" aria-label="واچ‌لیست" title="واچ‌لیست"><i class="fas fa-bookmark"></i></a>
+                <a href="/search" class="nav-link" aria-label="جستجو" title="جستجو"><i class="fas fa-search"></i></a>
+                <a href="/settings/index.html" class="nav-link" aria-label="تنظیمات" title="تنظیمات"><i class="fas fa-cog"></i></a>
+                <button id="theme-toggle" class="nav-link" aria-label="تغییر تم" title="تغییر تم"><i class="fas fa-sun"></i></button>
             </nav>
-            <!-- لوگو -->
-            <div>
-                <a href="https://freemovieir.github.io/">
-                    <img src="https://freemovieir.github.io/logo.png" alt="لوگوی فیری مووی" class="h-10">
-                </a>
-            </div>
         </div>
     </header>
 
-<!-- بخش فیلم‌های جدید -->
-<section class="container mx-auto py-8">
-    <!-- بیانیه سلب مسئولیت -->
-    <div id="disclaimer-notice" class="bg-gray-700 text-white p-4 rounded-lg shadow-md mb-6 mx-4">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <p class="text-sm md:text-base">
-                📢 <strong>سلب مسئولیت:</strong> این وب‌سایت فقط اطلاعات فیلم و سریال را نمایش می‌دهد و هیچ محتوایی را میزبانی نمی‌کند. اطلاعات از APIهای عمومی و لینک‌های دانلود از <a href="https://almasmovie.website/" target="_blank" class="underline hover:text-gray-300" rel="nofollow">الماس مووی</a> دریافت می‌شود. برای جزئیات بیشتر، <a href="/disclaimer" class="underline hover:text-gray-300">صفحه سلب مسئولیت</a> را ببینید.
+    <!-- هیرو -->
+    <section class="hero">
+        <div class="container mx-auto px-4 py-12 sm:py-16 text-center relative z-10">
+            <h1 class="text-3xl sm:text-5xl font-extrabold mb-4 leading-tight">
+                دنیای فیلم و سریال، یک‌جا
+            </h1>
+            <p class="text-slate-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base">
+                جدیدترین فیلم‌ها و سریال‌های پرطرفدار دنیا را کشف کنید، اطلاعاتشان را ببینید و لینک دانلود را پیدا کنید.
             </p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="/search" class="hero-btn hero-btn-primary"><i class="fas fa-search"></i> جستجوی فیلم و سریال</a>
+                <a href="/genres" class="hero-btn hero-btn-ghost"><i class="fas fa-layer-group"></i> مرور ژانرها</a>
+            </div>
         </div>
-    </div>
-
-    <!-- اطلاعیه جدید با لینک درخواست -->
-    <div id="availability-notice" class="bg-yellow-600 text-white p-4 rounded-lg shadow-md mb-6 mx-4">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <p class="text-sm md:text-base">
-                📢 <strong>اطلاعیه:</strong> لطفاً توجه داشته باشید که جدیدترین فیلم‌ها ممکن است هنوز قابل دانلود نباشند. این به این دلیل است که یا هنوز به صورت عمومی منتشر نشده‌اند یا منابع تأمین‌کننده ما آن‌ها را ارائه نکرده‌اند. پیشنهاد می‌کنیم فیلم‌هایی را <a href="https://freemovieir.github.io/search/index.html" target="_blank" class="underline hover:text-gray-300">جستجو</a> کنید که مطمئن هستید در دسترس هستند. اگر فیلمی را در سایت دیگری دیدید و در اینجا موجود نیست، می‌توانید از طریق <a href="https://freemovieir.github.io/issues/new" target="_blank" class="underline hover:text-gray-300">این لینک</a> درخواست اضافه کردن آن را ثبت کنید.
-            </p>
-            <button id="close-availability" class="text-gray-300 hover:text-white mt-2 md:mt-0 md:mr-2" aria-label="بستن اطلاعیه">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-    
-    <h2 class="text-2xl font-bold mb-4 text-center">جدیدترین فیلم‌ها</h2>
-    <div id="new-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 m-4">
-        <!-- Skeleton placeholders -->
-        <div class="skeleton w-full"></div>
-        <div class="skeleton w-full"></div>
-        <div class="skeleton w-full"></div>
-        <div class="skeleton w-full"></div>
-    </div>
-</section>
-
-    <!-- بخش سریال‌های پرطرفدار -->
-    <section class="container mx-auto py-8">
-        <h2 class="text-2xl font-bold mb-8 text-center">سریال‌های پرطرفدار</h2>
-        <div id="trending-tv" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 m-4">
-            <!-- Skeleton placeholders -->
-            <div class="skeleton w-full"></div>
-            <div class="skeleton w-full"></div>
-            <div class="skeleton w-full"></div>
-            <div class="skeleton w-full"></div>
-        </div>  
     </section>
 
-    <!-- دکمه گزارش باگ -->
-	<div class="fixed bottom-5 right-5 z-50">
-		<button id="fab" class="bg-[#1A1A2E] border-2 border-[#FFC107] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 animate-pulse w-12 h-12 md:w-14 md:h-14" aria-label="گزارش باگ">
-			<i class="fas fa-bug text-white text-xl md:text-2xl"></i>
-		</button>
-	    <div id="fabOptions" class="absolute bottom-16 right-0 bg-gray-500 rounded-lg shadow-lg w-48 p-2 hidden">
-            <a href="https://freemovieir.github.io/issues/new?template=%DA%AF%D8%B2%D8%A7%D8%B1%D8%B4-%D9%85%D8%B4%DA%A9%D9%84-%DB%8C%D8%A7-%D9%BE%DB%8C%D8%B4%D9%86%D9%87%D8%A7%D8%AF-%D8%AC%D8%AF%DB%8C%D8%AF.md" target="_blank" class="block text-black font-bold py-2 text-center hover:bg-[#FFC107] hover:text-[#1A1A2E] transition-colors duration-200">گزارش مشکلات در گیت‌هاب</a>
-            <a href="https://feedback.onl/fa/b/freemovie" target="_blank" class="block text-black font-bold py-2 text-center hover:bg-[#FFC107] hover:text-[#1A1A2E] transition-colors duration-200">ارسال بازخورد</a>
+    <main class="flex-1">
+    <!-- اطلاعیه‌ها -->
+    <div class="container mx-auto px-4 pt-6 space-y-3">
+        <div id="disclaimer-notice" class="notice notice-info">
+            <p>
+                📢 <strong>سلب مسئولیت:</strong> این وب‌سایت فقط اطلاعات فیلم و سریال را نمایش می‌دهد و هیچ محتوایی میزبانی نمی‌کند. لینک‌های دانلود از <a href="https://almasmovie.website/" target="_blank" rel="nofollow">الماس مووی</a> است. <a href="/disclaimer">جزئیات بیشتر</a>.
+            </p>
+            <button id="close-disclaimer" class="notice-close" aria-label="بستن"><i class="fas fa-times"></i></button>
         </div>
-	</div>
+
+        <div id="availability-notice" class="notice notice-warn">
+            <p>
+                📢 <strong>اطلاعیه:</strong> ممکن است جدیدترین فیلم‌ها هنوز قابل دانلود نباشند. پیشنهاد می‌کنیم فیلم‌هایی را <a href="https://freemovieir.github.io/search/index.html" target="_blank">جستجو</a> کنید که مطمئن هستید موجودند. درخواست افزودن فیلم از <a href="https://freemovieir.github.io/issues/new" target="_blank">این لینک</a>.
+            </p>
+            <button id="close-availability" class="notice-close" aria-label="بستن اطلاعیه"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- بخش فیلم‌های جدید -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="section-head">
+            <h2 class="section-title"><i class="fas fa-fire text-amber-400"></i> جدیدترین فیلم‌ها</h2>
+            <a href="/genres" class="section-link">مشاهده همه <i class="fas fa-angle-left"></i></a>
+        </div>
+        <div id="new-movies" class="cards-grid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </section>
+
+    <!-- بخش سریال‌های پرطرفدار -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="section-head">
+            <h2 class="section-title"><i class="fas fa-tv text-sky-400"></i> سریال‌های پرطرفدار</h2>
+            <a href="/series" class="section-link">مشاهده همه <i class="fas fa-angle-left"></i></a>
+        </div>
+        <div id="trending-tv" class="cards-grid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </section>
+    </main>
+
+    <!-- دکمه گزارش باگ -->
+    <div class="fixed bottom-5 right-5 z-50">
+        <button id="fab" class="bg-[#1A1A2E] border-2 border-[#FFC107] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 w-12 h-12 md:w-14 md:h-14" aria-label="گزارش باگ">
+            <i class="fas fa-bug text-white text-xl md:text-2xl"></i>
+        </button>
+        <div id="fabOptions" class="absolute bottom-16 right-0 bg-slate-700 rounded-lg shadow-lg w-48 p-2 hidden">
+            <a href="https://freemovieir.github.io/issues/new?template=%DA%AF%D8%B2%D8%A7%D8%B1%D8%B4-%D9%85%D8%B4%DA%A9%D9%84-%DB%8C%D8%A7-%D9%BE%DB%8C%D8%B4%D9%86%D9%87%D8%A7%D8%AF-%D8%AC%D8%AF%DB%8C%D8%AF.md" target="_blank" class="block text-white font-bold py-2 text-center rounded hover:bg-[#FFC107] hover:text-[#1A1A2E] transition-colors duration-200">گزارش مشکلات در گیت‌هاب</a>
+            <a href="https://feedback.onl/fa/b/freemovie" target="_blank" class="block text-white font-bold py-2 text-center rounded hover:bg-[#FFC107] hover:text-[#1A1A2E] transition-colors duration-200">ارسال بازخورد</a>
+        </div>
+    </div>
 
     <!-- پاپ‌آپ حمایت -->
-    <div id="support-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4 text-center">
+    <div id="support-popup" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4">
+        <div class="bg-slate-800 p-6 rounded-2xl shadow-2xl max-w-md w-full text-center border border-slate-700">
             <h3 class="text-xl font-bold text-white mb-4">حمایت از فیری مووی</h3>
-            <p class="text-gray-200 mb-6">با توییت زدن یا گذاشتن استوری در اینستاگرام، از فیری مووی حمایت کنید و ما را به دوستانتان معرفی کنید!</p>
-            <p class="text-gray-200 mb-6">منشن و درج لینک فراموش نشه |‌@freemovie_ir</p>
+            <p class="text-slate-300 mb-2">با توییت زدن یا گذاشتن استوری در اینستاگرام، از فیری مووی حمایت کنید و ما را به دوستانتان معرفی کنید!</p>
+            <p class="text-slate-300 mb-6">منشن و درج لینک فراموش نشه | @freemovie_ir</p>
             <div class="flex justify-center gap-4 mb-6">
-                <!-- تصویر توییتر -->
                 <div>
-                    <img src="https://freemovieir.github.io/images/story.png" alt="تصویر تبلیغاتی توییتر فیری مووی" class="w-32 h-32 rounded-md">
+                    <img src="https://freemovieir.github.io/images/story.png" alt="تصویر تبلیغاتی توییتر فیری مووی" class="w-32 h-32 rounded-md object-cover">
                     <button id="download-twitter" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">دانلود تصویر توییتر</button>
                 </div>
-                <!-- تصویر اینستاگرام -->
                 <div>
-                    <img src="https://freemovieir.github.io/images/tweet.png" alt="تصویر تبلیغاتی اینستاگرام فیری مووی" class="w-32 h-32 rounded-md">
+                    <img src="https://freemovieir.github.io/images/tweet.png" alt="تصویر تبلیغاتی اینستاگرام فیری مووی" class="w-32 h-32 rounded-md object-cover">
                     <button id="download-instagram" class="mt-2 bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 w-full">دانلود تصویر اینستاگرام</button>
                 </div>
             </div>
             <button id="tweet-support" class="bg-blue-400 text-white px-6 py-2 rounded hover:bg-blue-500 mb-4">انتشار توییت</button>
-            <button id="close-popup" class="block mx-auto text-gray-300 hover:text-white focus:outline-none" aria-label="بستن پاپ‌آپ">
+            <button id="close-popup" class="block mx-auto text-slate-300 hover:text-white focus:outline-none" aria-label="بستن پاپ‌آپ">
                 <i class="fas fa-times"></i> بستن
             </button>
         </div>
     </div>
 
     <!-- فوتر -->
-<footer class="bg-gray-800 p-4 mt-auto">
-    <div class="container mx-auto text-center">
-        <p>
-            فیری مووی - ساخته شده با 🤍
-            <br>
-            استفاده از فونت <a href="https://rastikerdar.github.io/vazir-font/" class="hover:text-gray-300">وزیرمتن</a> به یاد صابر راستی کردار
-        </p>
-        <a href="/developer">توسعه‌دهندگان</a> | <a href="/about-freemovie">درباره فیری مووی</a>
-        <br>
-        <a href="/disclaimer">سلب مسئولیت</a> | <a href="/disclaimer/index-en.html">DMCA</a>
-        <div class="social-icons mb-2">
-            <!-- دکمه گیت‌هاب -->
-            <a class="github-button" 
-               href="https://github.com/FreeMovieIR/web" 
-               data-icon="octicon-star" 
-               data-show-count="true" 
-               aria-label="ستاره دادن به FreeMovieIR/web در گیت‌هاب"></a>
-        </div>
-        <!-- خط جدید برای آیکون‌های توییتر و اینستاگرام -->
-        <div class="social-icons mb-2">
-            <!-- آیکون توییتر -->
-            <a href="https://twitter.com/freemovie_ir" 
-               target="_blank" 
-               class="mx-2 hover:text-gray-300" 
-               aria-label="ما را در توییتر دنبال کنید">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <!-- آیکون اینستاگرام -->
-            <a href="https://instagram.com/freemovie_ir" 
-               target="_blank" 
-               class="mx-2 hover:text-gray-300" 
-               aria-label="ما را در اینستاگرام دنبال کنید">
-                <i class="fab fa-instagram"></i>
-            </a>
+    <footer class="site-footer mt-auto">
+        <div class="container mx-auto text-center px-4 py-8">
+            <img src="https://freemovieir.github.io/logo.png" alt="لوگوی فیری مووی" class="h-10 mx-auto mb-3 opacity-90">
+            <p class="text-slate-400 text-sm mb-3">
+                فیری مووی - ساخته شده با 🤍
+                <br>
+                استفاده از فونت <a href="https://rastikerdar.github.io/vazirmatn/" class="footer-link">وزیرمتن</a> به یاد صابر راستی کردار
+            </p>
+            <nav class="flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm mb-4">
+                <a href="/developer" class="footer-link">توسعه‌دهندگان</a>
+                <span class="text-slate-600">|</span>
+                <a href="/about-freemovie" class="footer-link">درباره فیری مووی</a>
+                <span class="text-slate-600">|</span>
+                <a href="/disclaimer" class="footer-link">سلب مسئولیت</a>
+                <span class="text-slate-600">|</span>
+                <a href="/disclaimer/index-en.html" class="footer-link">DMCA</a>
+            </nav>
+            <div class="mb-3">
+                <a class="github-button" href="https://github.com/FreeMovieIR/web" data-icon="octicon-star" data-show-count="true" aria-label="ستاره دادن به FreeMovieIR/web در گیت‌هاب"></a>
+            </div>
+            <div class="flex justify-center gap-4 text-xl">
+                <a href="https://twitter.com/freemovie_ir" target="_blank" class="footer-link" aria-label="توییتر"><i class="fab fa-twitter"></i></a>
+                <a href="https://instagram.com/freemovie_ir" target="_blank" class="footer-link" aria-label="اینستاگرام"><i class="fab fa-instagram"></i></a>
+            </div>
         </div>
         <script async defer src="https://buttons.github.io/buttons.js"></script>
-    </div>
-</footer>
+    </footer>
 
     <script src="js/config.js" defer></script>
     <script src="js/apiClient.js" defer></script>
     <script src="apiKeySwitcher.js" defer></script>
     <script src="script.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 </html>

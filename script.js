@@ -209,7 +209,7 @@ async function fetchAndDisplayContent() {
     const movieContainer = document.getElementById('new-movies');
     const tvContainer = document.getElementById('trending-tv');
 
-    const skeletonHTML = '<div class="skeleton w-full"></div>'.repeat(4);
+    const skeletonHTML = '<div class="skeleton-card"></div>'.repeat(10);
     movieContainer.innerHTML = tvContainer.innerHTML = skeletonHTML;
 
     try {
@@ -233,36 +233,44 @@ const [movieRes, tvRes] = await Promise.all([
                 if (seenIds.has(item.id)) return '';
                 seenIds.add(item.id);
 
-                let poster = defaultPoster; let homeStatusBadge = ""; const detailsUrl = `https://api.themoviedb.org/3/${type}/${item.id}/external_ids?api_key=${apiKey}`;
+                const title = item.title || item.name || 'نامشخص';
+                const rawDate = item.release_date || item.first_air_date || '';
+                const year = rawDate ? rawDate.slice(0, 4) : '';
+                const rating = item.vote_average ? Number(item.vote_average).toFixed(1) : '';
+                const overview = item.overview ? item.overview.slice(0, 120) + '…' : 'توضیحات موجود نیست';
+                const link = `/${type === 'movie' ? 'movie' : 'series'}/index.html?id=${item.id}`;
 
-                try {
-                    const detailsRes = await apiClient.request(detailsUrl);
-                    if (detailsRes.ok) {
-                        const detailsData = await detailsRes.json();
-                        const imdbId = detailsData.imdb_id || '';
-                        if (imdbId) {
-                            poster = await getCachedImage(imdbId, async () => {
-                                const omdbData = await apiKeySwitcher.fetchWithKeySwitch(
-                                    key => `https://www.omdbapi.com/?i=${imdbId}&apikey=${key}`
-                                );
-                                return omdbData.Poster && omdbData.Poster !== 'N/A' ? omdbData.Poster : defaultPoster;
-                            });
-                        }
-                    }
-                } catch (error) { console.warn(`خطا در دریافت پوستر ${type} ${item.id}:`, error.message); }
-homeStatusBadge = await buildHomepageStatusBadge(item, type);
-return `
-                    <div class="group relative">
-                        ${homeStatusBadge}<div class="homepage-status-poster-wrap relative w-full" style="position:relative;display:block;"><div class="homepage-status-poster-wrap relative w-full" style="position:relative;display:block;">${homeStatusBadge}<img src="${poster}" alt="${item.title || item.name || 'نامشخص'}" class="w-full h-full rounded-lg shadow-lg"></div></div>
-                        <div class="absolute inset-0 bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
-                            <h3 class="text-lg font-bold text-white">${item.title || item.name || 'نامشخص'}</h3>
-                            <p class="text-sm text-gray-200">${item.overview ? item.overview.slice(0, 100) + '...' : 'توضیحات موجود نیست'}</p>
-                            <a href="/${type === 'movie' ? 'movie' : 'series'}/index.html?id=${item.id}" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">مشاهده</a>
+                // پوستر مستقیم از TMDB (سریع و پایدار) با fallback به پروکسی و سپس تصویر پیش‌فرض
+                const tmdbPoster = item.poster_path ? `${baseImageUrl}${item.poster_path}` : '';
+                const proxiedPoster = tmdbPoster && window.FreeMovieApi ? window.FreeMovieApi.proxify(tmdbPoster) : '';
+                const initialPoster = tmdbPoster || defaultPoster;
+                const fallback1 = (proxiedPoster && proxiedPoster !== initialPoster) ? proxiedPoster : defaultPoster;
+                const onError = `if(this.dataset.s==='2'){this.onerror=null;return;}if(this.dataset.s==='1'){this.dataset.s='2';this.src='${defaultPoster}';return;}this.dataset.s='1';this.src='${fallback1}';`;
+
+                const homeStatusBadge = await buildHomepageStatusBadge(item, type);
+
+                return `
+                    <div class="movie-card group">
+                        <a href="${link}" class="poster-wrap" aria-label="${title}">
+                            ${homeStatusBadge}
+                            <img src="${initialPoster}" alt="پوستر ${title}" loading="lazy" class="poster-img" onerror="${onError}">
+                            <div class="poster-overlay">
+                                <p class="overlay-text">${overview}</p>
+                                <span class="overlay-btn">مشاهده جزئیات</span>
+                            </div>
+                        </a>
+                        <div class="card-info">
+                            <h3 class="card-title" title="${title}">${title}</h3>
+                            <div class="card-meta">
+                                ${rating ? `<span class="card-rating"><i class="fas fa-star"></i> ${rating}</span>` : '<span></span>'}
+                                ${year ? `<span class="card-year">${year}</span>` : ''}
+                            </div>
+                            <a href="${link}" class="card-btn">مشاهده</a>
                         </div>
                     </div>
                 `;
             }));
-            container.innerHTML = elements.filter(Boolean).join('') || '<p class="text-center text-red-500">داده‌ای یافت نشد!</p>';
+            container.innerHTML = elements.filter(Boolean).join('') || '<p class="text-center text-red-500 col-span-full">داده‌ای یافت نشد!</p>';
         };
 
         await Promise.all([
