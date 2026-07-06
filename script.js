@@ -245,7 +245,7 @@ const [movieRes, tvRes] = await Promise.all([
                 const proxiedPoster = tmdbPoster && window.FreeMovieApi ? window.FreeMovieApi.proxify(tmdbPoster) : '';
                 const initialPoster = tmdbPoster || defaultPoster;
                 const fallback1 = (proxiedPoster && proxiedPoster !== initialPoster) ? proxiedPoster : defaultPoster;
-                const onError = `if(this.dataset.s==='2'){this.onerror=null;return;}if(this.dataset.s==='1'){this.dataset.s='2';this.src='${defaultPoster}';return;}this.dataset.s='1';this.src='${fallback1}';`;
+                const onError = `if(this.dataset.s==='3'){this.onerror=null;return;}if(this.dataset.s==='1'){this.dataset.s='2';this.src='https://image-tmdb-org.translate.goog/t/p/w500/${item.poster_path}?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=auto&_x_tr_pto=wapp';return;}if(this.dataset.s==='2'){this.dataset.s='3';this.src='${defaultPoster}';return;}this.dataset.s='1';this.src='${fallback1}';`;
 
                 const homeStatusBadge = await buildHomepageStatusBadge(item, type);
 
